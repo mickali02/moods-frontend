@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class Mood {
   final String emoji;
@@ -47,64 +48,116 @@ class _AddMoodPageState extends State<AddMoodPage> {
   void _addNewEmotion() {
     TextEditingController nameController = TextEditingController();
     String? selectedEmoji;
-    Color? selectedColor;
+    Color selectedColor = Colors.deepPurple;
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            backgroundColor: const Color(0xFF2c2c2e),
+            backgroundColor: const Color(0xFF2C2C2E),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            title: const Text('Create New Emotion'),
-            content: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Emotion Name',
-                      isDense: true,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text('Pick an Emoji'),
-                  const SizedBox(height: 8),
-                  _buildEmojiPicker((emoji) {
-                    setDialogState(() => selectedEmoji = emoji);
-                  }, selectedEmoji),
-                  const SizedBox(height: 12),
-                  const Text('Pick a Color'),
-                  const SizedBox(height: 8),
-                  _buildColorPicker((color) {
-                    setDialogState(() => selectedColor = color);
-                  }, selectedColor),
-                ],
+            contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+            title: const Text(
+              'Create New Emotion',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancel'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      decoration: InputDecoration(
+                        labelText: 'Emotion Name',
+                        labelStyle: const TextStyle(color: Colors.white70, fontSize: 13),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.white30),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.deepPurple),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text(
+                      'Pick an Emoji',
+                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      height: 140,
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: _buildEmojiPicker(
+                          (emoji) => setDialogState(() => selectedEmoji = emoji),
+                          selectedEmoji),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text(
+                      'Pick a Color',
+                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildColorPicker(
+                        (color) => setDialogState(() => selectedColor = color),
+                        selectedColor),
+                  ],
+                ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  if (nameController.text.isNotEmpty &&
-                      selectedEmoji != null &&
-                      selectedColor != null) {
-                    setState(() {
-                      _moods.add(Mood(
-                          emoji: selectedEmoji!,
-                          name: nameController.text,
-                          color: selectedColor!));
-                    });
-                    Navigator.of(context).pop();
-                  }
-                },
-                child: const Text('Save'),
+            ),
+            actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    ),
+                    child: const Text('Cancel', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurple,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: () {
+                      if (nameController.text.isNotEmpty && selectedEmoji != null) {
+                        setState(() {
+                          _moods.add(Mood(
+                            emoji: selectedEmoji!,
+                            name: nameController.text,
+                            color: selectedColor,
+                          ));
+                        });
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    child: const Text('Save', style: TextStyle(fontSize: 14)),
+                  ),
+                ],
               ),
             ],
           );
@@ -133,14 +186,13 @@ class _AddMoodPageState extends State<AddMoodPage> {
                 Text(
                   'Add New Mood',
                   style: GoogleFonts.poppins(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
-
-                // --- Form Card ---
                 Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
@@ -169,14 +221,12 @@ class _AddMoodPageState extends State<AddMoodPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
-
                       const Text('Pick Mood',
                           style: TextStyle(
                               fontSize: 14, fontWeight: FontWeight.w500)),
                       const SizedBox(height: 8),
                       _buildMoodSelector(),
                       const SizedBox(height: 16),
-
                       TextField(
                         controller: _descriptionController,
                         maxLines: 3,
@@ -190,7 +240,6 @@ class _AddMoodPageState extends State<AddMoodPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -202,19 +251,15 @@ class _AddMoodPageState extends State<AddMoodPage> {
                                 _selectedMood = null;
                               });
                             },
-                            child: const Text(
-                              'Cancel',
-                              style: TextStyle(color: Colors.white70),
-                            ),
+                            child: const Text('Cancel',
+                                style: TextStyle(color: Colors.white70)),
                           ),
                           const SizedBox(width: 12),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.deepPurple,
                             ),
-                            onPressed: () {
-                              // Save logic here
-                            },
+                            onPressed: () {},
                             child: const Text('Save'),
                           ),
                         ],
@@ -245,8 +290,7 @@ class _AddMoodPageState extends State<AddMoodPage> {
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding:
-                  const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
               decoration: BoxDecoration(
                 color: isSelected ? mood.color.withAlpha(180) : Colors.black26,
                 borderRadius: BorderRadius.circular(20),
@@ -264,7 +308,6 @@ class _AddMoodPageState extends State<AddMoodPage> {
             ),
           );
         }),
-        // Add button
         InkWell(
           onTap: _addNewEmotion,
           borderRadius: BorderRadius.circular(30),
@@ -279,57 +322,130 @@ class _AddMoodPageState extends State<AddMoodPage> {
   }
 
   Widget _buildEmojiPicker(Function(String) onSelect, String? selectedEmoji) {
-    final emojis = ['😄', '😍', '🥳', '🤯', '😴', '😇', '😎', '🤣'];
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: emojis.map((emoji) {
+    final emojis = [
+      '😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','😘','😗',
+      '😙','😚','🙂','🤗','🤩','🤔','😐','😑','😶','🙄','😏','😣','😥','😮','🤐',
+      '😯','😪','😫','🥱','😴','😌','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔',
+      '🤤','🤠','😓','😔','😕','🙁','☹️','😖','😞','😟','😤','😢','😭','😦','😧',
+      '😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬',
+      '😷','🤒','🤕','🤢','🤮','🤧','🥳','🥺','🤠','😇','🤓'
+    ];
+
+    return GridView.builder(
+      padding: const EdgeInsets.all(8),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 7,
+        mainAxisSpacing: 4,
+        crossAxisSpacing: 4,
+        childAspectRatio: 1,
+      ),
+      itemCount: emojis.length,
+      itemBuilder: (context, index) {
+        final emoji = emojis[index];
         final isSelected = selectedEmoji == emoji;
         return GestureDetector(
           onTap: () => onSelect(emoji),
           child: Container(
-            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: isSelected ? Colors.deepPurple : Colors.black26,
-              shape: BoxShape.circle,
+              color: isSelected ? Colors.deepPurple : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: Text(emoji, style: const TextStyle(fontSize: 20)),
+            child: Center(
+              child: Text(
+                emoji,
+                style: const TextStyle(fontSize: 20),
+              ),
+            ),
           ),
         );
-      }).toList(),
+      },
     );
   }
 
-  Widget _buildColorPicker(Function(Color) onSelect, Color? selectedColor) {
+  Widget _buildColorPicker(Function(Color) onSelect, Color selectedColor) {
     final colors = [
-      Colors.red,
-      Colors.orange,
-      Colors.yellow,
-      Colors.green,
-      Colors.blue,
-      Colors.indigo,
-      Colors.purple,
-      Colors.pink
+      Colors.red, Colors.pink, Colors.purple, Colors.deepPurple,
+      Colors.indigo, Colors.blue, Colors.lightBlue, Colors.cyan,
+      Colors.teal, Colors.green, Colors.lightGreen, Colors.lime,
+      Colors.yellow, Colors.amber, Colors.orange, Colors.deepOrange,
+      Colors.brown, Colors.grey, Colors.blueGrey, Colors.black,
     ];
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: colors.map((color) {
-        final isSelected = selectedColor == color;
-        return GestureDetector(
-          onTap: () => onSelect(color),
-          child: Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              border:
-                  isSelected ? Border.all(color: Colors.white, width: 2) : null,
-            ),
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(4),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 8,
+            mainAxisSpacing: 6,
+            crossAxisSpacing: 6,
+            childAspectRatio: 1,
           ),
-        );
-      }).toList(),
+          itemCount: colors.length,
+          itemBuilder: (context, index) {
+            final color = colors[index];
+            final isSelected = selectedColor.value == color.value;
+            return GestureDetector(
+              onTap: () => onSelect(color),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: isSelected ? Colors.white : Colors.transparent,
+                    width: 2,
+                  ),
+                ),
+                child: isSelected
+                    ? const Icon(Icons.check, color: Colors.white, size: 16)
+                    : null,
+              ),
+            );
+          },
+        ),
+        Center(
+          child: TextButton.icon(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                  backgroundColor: const Color(0xFF2C2C2E),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  title: const Text(
+                    "Advanced Color Picker",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    child: SingleChildScrollView(
+                      child: ColorPicker(
+                        pickerColor: selectedColor,
+                        onColorChanged: onSelect,
+                        pickerAreaHeightPercent: 0.8,
+                        labelTypes: const [],
+                      ),
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      child: const Text("Close",
+                          style: TextStyle(color: Colors.white70)),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              );
+            },
+            icon: const Icon(Icons.palette, color: Colors.white70, size: 18),
+            label: const Text("More colors",
+                style: TextStyle(color: Colors.white70, fontSize: 13)),
+          ),
+        ),
+      ],
     );
   }
 }
