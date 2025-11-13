@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'add_mood_page.dart';
 import 'stats_page.dart';
 import 'settings_page.dart';
+import 'edit_note_page.dart'; // ✨ NEW: Import the edit page
 
 enum FilterOption { title, emotion }
 
@@ -37,6 +38,7 @@ class HomePageController extends StatefulWidget {
 class _HomePageControllerState extends State<HomePageController> {
   int _selectedIndex = 0;
 
+  // ✨ NEW: Added EditNotePage to this list for completeness, though it's not used by the nav bar.
   static const List<Widget> _pages = <Widget>[
     MyHomePage(),
     AddMoodPage(),
@@ -95,22 +97,21 @@ class _MyHomePageState extends State<MyHomePage> {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Updated RadioGroup pattern
-                  Column(
-                    children: FilterOption.values.map((option) {
-                      return Radio<FilterOption>(
-                        value: option,
-                        groupValue: selectedOption,
-                        onChanged: (value) {
-                          if (value != null) {
-                            setDialogState(() {
-                              selectedOption = value;
-                            });
-                          }
-                        },
-                      );
-                    }).toList(),
-                  ),
+                  // This part for the filter popup remains the same.
+                  ...FilterOption.values.map((option) {
+                    return RadioListTile<FilterOption>(
+                      title: Text(option.name[0].toUpperCase() + option.name.substring(1)),
+                      value: option,
+                      groupValue: selectedOption,
+                      onChanged: (value) {
+                        if (value != null) {
+                          setDialogState(() {
+                            selectedOption = value;
+                          });
+                        }
+                      },
+                    );
+                  }).toList(),
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -184,6 +185,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   itemCount: 10,
                   itemBuilder: (context, index) {
+                    // ✨ NEW: Define dummy data for the note. In a real app, this would
+                    // come from a list of note objects, like `myNotes[index]`.
+                    const String noteMood = '😊';
+                    const String noteTitle = 'Felt Great Today!';
+                    const String noteDescription = 'Had a really productive day at work and finished my big project. Feels good to have it done!';
+
                     return Container(
                       margin: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 8.0),
                       child: Card(
@@ -197,9 +204,17 @@ class _MyHomePageState extends State<MyHomePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                '😊 Felt Great Today!',
-                                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                              Text(
+                                '$noteMood $noteTitle', // Display mood and title
+                                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              // ✨ NEW: Added a description to the card to show what will be edited.
+                              Text(
+                                noteDescription,
+                                style: TextStyle(fontSize: 14, color: Colors.grey.shade300),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 6),
                               const Text(
@@ -209,7 +224,24 @@ class _MyHomePageState extends State<MyHomePage> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  IconButton(icon: const Icon(Icons.edit, size: 22), onPressed: () {}),
+                                  // ✨ NEW: This is the main change. The onPressed callback is updated.
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, size: 22),
+                                    onPressed: () {
+                                      // This is where the magic happens!
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => EditNotePage(
+                                            // We pass the note's data to the edit page.
+                                            initialTitle: noteTitle,
+                                            initialDescription: noteDescription,
+                                            initialMood: noteMood,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                   IconButton(icon: const Icon(Icons.delete, size: 22), onPressed: () {}),
                                 ],
                               )
