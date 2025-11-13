@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'add_mood_page.dart';
+import 'stats_page.dart';
 
 enum FilterOption { title, emotion }
 
@@ -38,7 +39,7 @@ class _HomePageControllerState extends State<HomePageController> {
   static const List<Widget> _pages = <Widget>[
     MyHomePage(),
     AddMoodPage(),
-    Text('Stats Page'),
+    StatsPage(),
     Text('Settings Page'),
   ];
 
