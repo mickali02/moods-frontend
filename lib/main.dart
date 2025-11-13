@@ -10,6 +10,15 @@ void main() {
   runApp(const MyApp());
 }
 
+// Simple Mood class
+class Mood {
+  final String emoji;
+  final String name;
+  final Color color;
+
+  Mood({required this.emoji, required this.name, required this.color});
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -83,6 +92,69 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   FilterOption selectedOption = FilterOption.title;
 
+  // Example mood list
+  final List<Mood> _availableMoods = [
+    Mood(emoji: '😊', name: 'Happy', color: Colors.green),
+    Mood(emoji: '😢', name: 'Sad', color: Colors.blue),
+    Mood(emoji: '😠', name: 'Angry', color: Colors.red),
+    Mood(emoji: '😮', name: 'Surprised', color: Colors.orange),
+    Mood(emoji: '😐', name: 'Neutral', color: Colors.grey),
+  ];
+
+  // Diverse dummy data with different moods
+  final List<Map<String, String>> _dummyNotes = [
+    {
+      'emoji': '😊',
+      'title': 'Felt Great Today!',
+      'description': 'Had a really productive day at work and finished my big project. Feels good to have it done and ready to move on to new things!'
+    },
+    {
+      'emoji': '😢',
+      'title': 'Missing Home',
+      'description': 'Been away from family for a while now. Called mom today and it made me realize how much I miss everyone back home.'
+    },
+    {
+      'emoji': '😠',
+      'title': 'Frustrated',
+      'description': 'Traffic was terrible this morning and I was late to an important meeting. Need to find better ways to manage my commute.'
+    },
+    {
+      'emoji': '😮',
+      'title': 'Amazing News!',
+      'description': 'Just got accepted into the program I applied for! Can\'t believe it actually happened. This is going to change everything!'
+    },
+    {
+      'emoji': '😐',
+      'title': 'Just Another Day',
+      'description': 'Nothing special happened today. Work was okay, came home, watched some TV. Sometimes boring days are good days too.'
+    },
+    {
+      'emoji': '😊',
+      'title': 'Coffee with Friends',
+      'description': 'Met up with Sarah and Tom after so long. We laughed about old memories and made plans for a weekend trip!'
+    },
+    {
+      'emoji': '😢',
+      'title': 'Tough Conversation',
+      'description': 'Had to have a difficult talk with someone today. It was necessary but that doesn\'t make it any easier to process.'
+    },
+    {
+      'emoji': '😠',
+      'title': 'System Crashed',
+      'description': 'Lost hours of work because of a computer crash. Should have saved more frequently. Lesson learned the hard way.'
+    },
+    {
+      'emoji': '😮',
+      'title': 'Unexpected Gift',
+      'description': 'Someone left a surprise gift at my door! Such a thoughtful gesture that completely made my day brighter.'
+    },
+    {
+      'emoji': '😐',
+      'title': 'Rainy Evening',
+      'description': 'Spent the evening inside watching the rain. Sometimes it\'s nice to just exist without any particular plans or goals.'
+    },
+  ];
+
   void _openFilterPopup(BuildContext context) {
     showDialog(
       context: context,
@@ -137,14 +209,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _showNotePopup(BuildContext context, String mood, String title, String description) {
-    // Mock timestamps - replace with actual data later
+    // Mock timestamps
     final createdDate = DateTime.now().subtract(const Duration(days: 2, hours: 3));
     final updatedDate = DateTime.now().subtract(const Duration(hours: 5));
-    
+
     showDialog(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.black.withValues(alpha: 0.85),
+      barrierColor: Colors.black.withAlpha(220),
       builder: (context) {
         return Dialog(
           backgroundColor: const Color(0xFF1a1a1a),
@@ -161,7 +233,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Close button row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -175,7 +246,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  // Mood emoji and title
                   Row(
                     children: [
                       Text(
@@ -196,11 +266,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  // Timestamps
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                     decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.3),
+                      color: Colors.black.withAlpha(80),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(
@@ -212,10 +281,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             const SizedBox(width: 6),
                             Text(
                               'Created: ${_formatDateTime(createdDate)}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
+                              style: const TextStyle(fontSize: 12, color: Colors.grey),
                             ),
                           ],
                         ),
@@ -226,10 +292,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             const SizedBox(width: 6),
                             Text(
                               'Updated: ${_formatDateTime(updatedDate)}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
+                              style: const TextStyle(fontSize: 12, color: Colors.grey),
                             ),
                           ],
                         ),
@@ -237,17 +300,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Description
                   Text(
                     description,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      color: Colors.white,
-                      height: 1.5,
-                    ),
+                    style: const TextStyle(fontSize: 15, color: Colors.white, height: 1.5),
                   ),
                   const SizedBox(height: 24),
-                  // Action buttons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -288,7 +345,6 @@ class _MyHomePageState extends State<MyHomePage> {
     final difference = now.difference(dateTime);
 
     if (difference.inDays == 0) {
-      // Today - show time
       final hour = dateTime.hour > 12 ? dateTime.hour - 12 : dateTime.hour;
       final period = dateTime.hour >= 12 ? 'PM' : 'AM';
       return 'Today at ${hour == 0 ? 12 : hour}:${dateTime.minute.toString().padLeft(2, '0')} $period';
@@ -297,7 +353,6 @@ class _MyHomePageState extends State<MyHomePage> {
     } else if (difference.inDays < 7) {
       return '${difference.inDays} days ago';
     } else {
-      // Show full date
       return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
     }
   }
@@ -317,14 +372,13 @@ class _MyHomePageState extends State<MyHomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              // Enhanced greeting with background
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.65),
+                    color: Colors.black.withAlpha(160),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: const Color(0xFFC5A8FF).withAlpha(60),
@@ -344,27 +398,19 @@ class _MyHomePageState extends State<MyHomePage> {
                               color: Color(0xFFC5A8FF),
                             ),
                           ),
-                          Text(
-                            "🙂",
-                            style: TextStyle(fontSize: 20),
-                          ),
+                          Text("🙂", style: TextStyle(fontSize: 20)),
                         ],
                       ),
                       const SizedBox(height: 6),
                       Text(
                         "How are you feeling today?",
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.white.withAlpha(220),
-                        ),
+                        style: TextStyle(fontSize: 15, color: Colors.white.withAlpha(220)),
                       ),
                     ],
                   ),
                 ),
               ),
-
               const SizedBox(height: 20),
-              // Search bar + Filter
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
                 child: Row(
@@ -375,8 +421,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           hintText: 'Search moods...',
                           hintStyle: TextStyle(color: Colors.grey.shade400),
                           prefixIcon: Icon(Icons.search, size: 22, color: Colors.grey.shade400),
-                          contentPadding:
-                              const EdgeInsets.symmetric(vertical: 14.0, horizontal: 18.0),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 18.0),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30.0),
                             borderSide: BorderSide.none,
@@ -401,18 +446,22 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 8),
-              // Notes List
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
-                  itemCount: 10,
+                  itemCount: _dummyNotes.length,
                   itemBuilder: (context, index) {
-                    const String noteMood = '😊';
-                    const String noteTitle = 'Felt Great Today!';
-                    const String noteDescription =
-                        'Had a really productive day at work and finished my big project. Feels good to have it done and ready to move on to new things!';
+                    final note = _dummyNotes[index];
+                    final noteMood = note['emoji']!;
+                    final noteTitle = note['title']!;
+                    final noteDescription = note['description']!;
+
+                    // Find the mood color for this note
+                    final Mood mood = _availableMoods.firstWhere(
+                      (m) => m.emoji == noteMood,
+                      orElse: () => _availableMoods.first,
+                    );
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12.0),
@@ -420,20 +469,21 @@ class _MyHomePageState extends State<MyHomePage> {
                         borderRadius: BorderRadius.circular(16.0),
                         gradient: LinearGradient(
                           colors: [
-                            Colors.black.withValues(alpha: 0.75),
-                            Colors.black.withValues(alpha: 0.65),
+                            Colors.black.withAlpha(200),
+                            Colors.black.withAlpha(170),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         border: Border.all(
-                          color: const Color(0xFFC5A8FF).withAlpha(40),
-                          width: 1,
+                          color: mood.color.withAlpha(120),
+                          width: 2,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.3),
-                            blurRadius: 8,
+                            color: mood.color.withAlpha(100),
+                            blurRadius: 12,
+                            spreadRadius: 1,
                             offset: const Offset(0, 4),
                           ),
                         ],
@@ -442,56 +492,75 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: Colors.transparent,
                         child: InkWell(
                           borderRadius: BorderRadius.circular(16.0),
-                          onTap: () => _showNotePopup(
-                            context,
-                            noteMood,
-                            noteTitle,
-                            noteDescription,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFC5A8FF).withAlpha(25),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    noteMood,
-                                    style: const TextStyle(fontSize: 24),
-                                  ),
-                                ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        noteTitle,
-                                        style: const TextStyle(
-                                          fontSize: 16.5,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white,
-                                        ),
+                          onTap: () => _showNotePopup(context, noteMood, noteTitle, noteDescription),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16.0),
+                              gradient: LinearGradient(
+                                colors: [
+                                  mood.color.withAlpha(25),
+                                  Colors.transparent,
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: mood.color.withAlpha(80),
+                                      borderRadius: BorderRadius.circular(14),
+                                      border: Border.all(
+                                        color: mood.color.withAlpha(150),
+                                        width: 2,
                                       ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        noteDescription.length > 70
-                                            ? "${noteDescription.substring(0, 70)}..."
-                                            : noteDescription,
-                                        style: TextStyle(
-                                          fontSize: 13.5,
-                                          color: Colors.grey.shade300,
-                                          height: 1.4,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: mood.color.withAlpha(80),
+                                          blurRadius: 8,
+                                          spreadRadius: 1,
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
+                                    child: Text(
+                                      noteMood,
+                                      style: const TextStyle(fontSize: 26),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          noteTitle,
+                                          style: const TextStyle(
+                                            fontSize: 16.5,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          noteDescription.length > 70
+                                              ? "${noteDescription.substring(0, 70)}..."
+                                              : noteDescription,
+                                          style: TextStyle(
+                                            fontSize: 13.5,
+                                            color: Colors.grey.shade300,
+                                            height: 1.4,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
