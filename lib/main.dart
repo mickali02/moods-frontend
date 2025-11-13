@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'add_mood_page.dart';
 import 'stats_page.dart';
+import 'settings_page.dart';
 
 enum FilterOption { title, emotion }
 
@@ -40,7 +41,7 @@ class _HomePageControllerState extends State<HomePageController> {
     MyHomePage(),
     AddMoodPage(),
     StatsPage(),
-    Text('Settings Page'),
+    SettingsPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -89,48 +90,48 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: const Color(0xFF2c2c2c),
           title: const Text('Filter by'),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              RadioListTile<FilterOption>(
-                title: const Text('Title'),
-                value: FilterOption.title,
-                groupValue: selectedOption,
-                onChanged: (value) {
-                  setState(() {
-                    if (value != null) selectedOption = value;
-                  });
-                  Navigator.of(context).pop();
-                  _openFilterPopup(context); // reopen to reflect change
-                },
-              ),
-              RadioListTile<FilterOption>(
-                title: const Text('Emotion'),
-                value: FilterOption.emotion,
-                groupValue: selectedOption,
-                onChanged: (value) {
-                  setState(() {
-                    if (value != null) selectedOption = value;
-                  });
-                  Navigator.of(context).pop();
-                  _openFilterPopup(context);
-                },
-              ),
-            ],
+          content: StatefulBuilder(
+            builder: (context, setDialogState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Updated RadioGroup pattern
+                  Column(
+                    children: FilterOption.values.map((option) {
+                      return Radio<FilterOption>(
+                        value: option,
+                        groupValue: selectedOption,
+                        onChanged: (value) {
+                          if (value != null) {
+                            setDialogState(() {
+                              selectedOption = value;
+                            });
+                          }
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          debugPrint('Applying filter: ${selectedOption.name}');
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Apply'),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
-            ),
-            TextButton(
-              onPressed: () {
-                debugPrint('Applying filter: ${selectedOption.name}');
-                Navigator.of(context).pop();
-              },
-              child: const Text('Apply'),
-            ),
-          ],
         );
       },
     );

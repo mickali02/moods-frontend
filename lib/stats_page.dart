@@ -187,14 +187,14 @@ class StatsPage extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.deepPurple.withOpacity(0.6), Colors.black.withOpacity(0.6)],
+          colors: [Colors.deepPurple.withAlpha(153), Colors.black.withAlpha(153)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withAlpha(77),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

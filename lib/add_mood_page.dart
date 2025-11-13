@@ -37,7 +37,7 @@ class _AddMoodPageState extends State<AddMoodPage> {
                 Text(
                   'Add New Mood',
                   style: GoogleFonts.poppins(
-                    fontSize: 26,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
