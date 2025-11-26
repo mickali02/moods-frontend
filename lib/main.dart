@@ -4,6 +4,9 @@ import 'stats_page.dart';
 import 'settings_page.dart';
 import 'edit_note_page.dart';
 
+// --- NEW IMPORT FOR LOGIN ---
+import 'login_page.dart';
+
 // --- IMPORTS FOR BACKEND CONNECTION ---
 import 'models/note_model.dart';
 import 'services/api_service.dart';
@@ -36,7 +39,8 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
       ),
       debugShowCheckedModeBanner: false,
-      home: const HomePageController(),
+      // --- UPDATE: App now starts at LoginPage ---
+      home: const LoginPage(),
     );
   }
 }
@@ -79,6 +83,7 @@ class _HomePageControllerState extends State<HomePageController> {
         selectedItemColor: const Color(0xFFC5A8FF),
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
+        // Note: If withAlpha gives you warnings, replace with .withValues(alpha: 0.7)
         backgroundColor: Colors.black.withAlpha(178),
         type: BottomNavigationBarType.fixed,
       ),
@@ -135,8 +140,6 @@ class _MyHomePageState extends State<MyHomePage> {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // FIXED: Removed .toList() and replaced deprecated RadioListTile
-                  // with a standard ListTile + Icon manual implementation
                   ...FilterOption.values.map((option) {
                     final isSelected = selectedOption == option;
                     return ListTile(
@@ -170,7 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         onPressed: () {
                           debugPrint('Applying filter: ${selectedOption.name}');
                           Navigator.of(context).pop();
-                          // In a real app, you would pass this filter to _apiService.getNotes(filter: ...)
+                          // In a real app, pass filter to _apiService.getNotes(filter: ...)
                         },
                         child: const Text('Apply'),
                       ),
@@ -307,7 +310,6 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                           );
-                          // FIXED: Check mounted before using context or setState
                           if (!context.mounted) return;
                           _loadNotes(); // Refresh list after edit returns
                         },
@@ -320,7 +322,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           // Connect delete logic here
                           await _apiService.deleteNote(note.id);
                           
-                          // FIXED: Check mounted before using context
                           if (!context.mounted) return;
                           
                           Navigator.pop(context);
