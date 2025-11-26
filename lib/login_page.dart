@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'main.dart'; // Needed to navigate to HomePageController
+import 'services/api_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -32,18 +33,48 @@ class _LoginPageState extends State<LoginPage> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      // Simulate Authentication Network Delay
-      await Future.delayed(const Duration(seconds: 2));
+      try {
+        // --- CALL THE API SERVICE ---
+        if (_isLogin) {
+          // Log in
+          await ApiService().login(
+            _emailController.text,
+            _passwordController.text,
+          );
+        } else {
+          // Sign up
+          await ApiService().signup(
+            _usernameController.text,
+            _emailController.text,
+            _passwordController.text,
+          );
+        }
 
-      if (!mounted) return;
+        if (!mounted) return;
 
-      setState(() => _isLoading = false);
+        setState(() => _isLoading = false);
 
-      // Navigate to the Main App
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePageController()),
-      );
+        // --- SUCCESS: Navigate to Home ---
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePageController()),
+        );
+      } catch (e) {
+        // --- ERROR: Show message ---
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        
+        // Clean up error message (remove "Exception:")
+        final errorMessage = e.toString().replaceAll('Exception: ', '');
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 
@@ -72,7 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                     fit: BoxFit.contain,
                   ),
                   
-                  // --- GAP REDUCED HERE (Changed from 40 to 10) ---
+                  // --- GAP REDUCED ---
                   const SizedBox(height: 10),
 
                   // --- Glass Card ---

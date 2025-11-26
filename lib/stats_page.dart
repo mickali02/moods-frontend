@@ -1,9 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'services/api_service.dart'; // Import the service
 
-class StatsPage extends StatelessWidget {
+class StatsPage extends StatefulWidget {
   const StatsPage({super.key});
+
+  @override
+  State<StatsPage> createState() => _StatsPageState();
+}
+
+class _StatsPageState extends State<StatsPage> {
+  late Future<Map<String, dynamic>> _statsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshStats();
+  }
+
+  void _refreshStats() {
+    setState(() {
+      _statsFuture = ApiService().getStats();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,83 +37,109 @@ class StatsPage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // --- Title ---
-                Padding(
-                  padding: const EdgeInsets.only(top: 16.0, bottom: 32.0),
-                  child: Center(
-                    child: Text(
-                      'Statistics',
-                      style: GoogleFonts.poppins(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+          child: FutureBuilder<Map<String, dynamic>>(
+            future: _statsFuture,
+            builder: (context, snapshot) {
+              // 1. Loading State
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator(color: Color(0xFFC5A8FF)));
+              }
+              
+              // 2. Error State
+              if (snapshot.hasError) {
+                return Center(child: Text("Error loading stats", style: GoogleFonts.poppins(color: Colors.white)));
+              }
+
+              // 3. Data Loaded
+              final data = snapshot.data!;
+              final totalEntries = data['total_entries'] as int;
+              final frequentMood = data['frequent_mood'] as String;
+              final weeklyData = data['weekly_entries'] as List<int>;
+
+              // Calculate percentages for Pie Chart (Mock logic for display)
+              // In a real app, backend sends specific percentages.
+              // We will just show visual placeholders if data exists.
+              final hasData = totalEntries > 0;
+
+              return RefreshIndicator(
+                onRefresh: () async => _refreshStats(),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // --- Title ---
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16.0, bottom: 32.0),
+                        child: Center(
+                          child: Text(
+                            'Statistics',
+                            style: GoogleFonts.poppins(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+            
+                      // --- Summary Cards ---
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _modernCard(
+                              child: Column(
+                                children: [
+                                  Text('$totalEntries',
+                                      style: GoogleFonts.poppins(
+                                          fontSize: 32,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white)),
+                                  const SizedBox(height: 6),
+                                  Text('Total Entries',
+                                      style: GoogleFonts.poppins(
+                                          fontSize: 14, color: Colors.white70)),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _modernCard(
+                              child: Column(
+                                children: [
+                                  Text(frequentMood, style: const TextStyle(fontSize: 32)),
+                                  const SizedBox(height: 6),
+                                  Text('Frequent Mood',
+                                      style: GoogleFonts.poppins(
+                                          fontSize: 14, color: Colors.white70)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 28),
+            
+                      // --- Pie Chart ---
+                      _buildPieChartCard(hasData),
+                      const SizedBox(height: 28),
+            
+                      // --- Bar Chart ---
+                      _buildBarChartCard(weeklyData),
+                    ],
                   ),
                 ),
-
-                // --- Summary Cards ---
-                _buildSummaryCards(),
-                const SizedBox(height: 28),
-
-                // --- Pie Chart ---
-                _buildPieChartCard(),
-                const SizedBox(height: 28),
-
-                // --- Bar Chart ---
-                _buildBarChartCard(),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget _buildSummaryCards() {
-    return Row(
-      children: [
-        Expanded(
-          child: _modernCard(
-            child: Column(
-              children: [
-                Text('15',
-                    style: GoogleFonts.poppins(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white)),
-                const SizedBox(height: 6),
-                Text('Weekly Entries',
-                    style: GoogleFonts.poppins(
-                        fontSize: 14, color: Colors.white70)),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _modernCard(
-            child: Column(
-              children: [
-                const Text('😊', style: TextStyle(fontSize: 32)),
-                const SizedBox(height: 6),
-                Text('Frequent Mood',
-                    style: GoogleFonts.poppins(
-                        fontSize: 14, color: Colors.white70)),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPieChartCard() {
+  Widget _buildPieChartCard(bool hasData) {
     return _modernCard(
       child: Column(
         children: [
@@ -105,29 +151,33 @@ class StatsPage extends StatelessWidget {
           const SizedBox(height: 20),
           SizedBox(
             height: 180,
-            child: PieChart(
+            child: hasData 
+            ? PieChart(
               PieChartData(
                 sections: [
+                  // We are hardcoding these specifically for the demo look
+                  // When backend is ready, they will map 'mood_counts' from API
                   PieChartSectionData(
-                      value: 40, color: Colors.green, title: '40%', radius: 50),
+                      value: 40, color: Colors.green.withValues(alpha: 0.8), title: '40%', radius: 50),
                   PieChartSectionData(
-                      value: 30, color: Colors.blue, title: '30%', radius: 50),
+                      value: 30, color: Colors.blue.withValues(alpha: 0.8), title: '30%', radius: 50),
                   PieChartSectionData(
-                      value: 15, color: Colors.red, title: '15%', radius: 50),
+                      value: 15, color: Colors.red.withValues(alpha: 0.8), title: '15%', radius: 50),
                   PieChartSectionData(
-                      value: 15, color: Colors.grey, title: '15%', radius: 50),
+                      value: 15, color: Colors.orange.withValues(alpha: 0.8), title: '15%', radius: 50),
                 ],
                 centerSpaceRadius: 45,
                 sectionsSpace: 2,
               ),
-            ),
+            )
+            : const Center(child: Text("Not enough data yet", style: TextStyle(color: Colors.white54))),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBarChartCard() {
+  Widget _buildBarChartCard(List<int> weeklyData) {
     return _modernCard(
       child: Column(
         children: [
@@ -142,16 +192,10 @@ class StatsPage extends StatelessWidget {
             child: BarChart(
               BarChartData(
                 alignment: BarChartAlignment.spaceAround,
-                barGroups: [
-                  _makeBar(0, 5),
-                  _makeBar(1, 3),
-                  _makeBar(2, 7),
-                  _makeBar(3, 4),
-                  _makeBar(4, 6),
-                  _makeBar(5, 2),
-                  _makeBar(6, 1),
-                ],
-                gridData: FlGridData(show: false),
+                barGroups: List.generate(weeklyData.length, (index) {
+                   return _makeBar(index, weeklyData[index].toDouble());
+                }),
+                gridData: const FlGridData(show: false),
                 borderData: FlBorderData(show: false),
                 titlesData: FlTitlesData(
                   show: true,
@@ -167,10 +211,10 @@ class StatsPage extends StatelessWidget {
                         const style = TextStyle(
                             fontSize: 11, color: Colors.white70);
                         const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                        return Text(
-                          value.toInt() < labels.length ? labels[value.toInt()] : '',
-                          style: style,
-                        );
+                        if (value.toInt() >= 0 && value.toInt() < labels.length) {
+                          return Text(labels[value.toInt()], style: style);
+                        }
+                        return const Text('');
                       },
                     ),
                   ),
@@ -187,14 +231,14 @@ class StatsPage extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.deepPurple.withAlpha(153), Colors.black.withAlpha(153)],
+          colors: [Colors.deepPurple.withValues(alpha: 0.6), Colors.black.withValues(alpha: 0.6)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(77),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
