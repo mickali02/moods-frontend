@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'services/api_service.dart'; // Import the service
 
 class Mood {
   final String emoji;
@@ -20,6 +21,7 @@ class AddMoodPage extends StatefulWidget {
 class _AddMoodPageState extends State<AddMoodPage> {
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
+  bool _isSaving = false; // To show loading state
 
   final List<Mood> _moods = [
     Mood(emoji: '😊', name: 'Happy', color: Colors.green),
@@ -43,6 +45,44 @@ class _AddMoodPageState extends State<AddMoodPage> {
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  // --- SAVE FUNCTION ---
+  Future<void> _saveNote() async {
+    if (_titleController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a title')),
+      );
+      return;
+    }
+    if (_selectedMood == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a mood')),
+      );
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    // Call the Service
+    await ApiService().createNote(
+      _titleController.text,
+      _descriptionController.text,
+      _selectedMood!.emoji,
+    );
+
+    if (!mounted) return;
+
+    setState(() => _isSaving = false);
+    
+    // Clear Form
+    _titleController.clear();
+    _descriptionController.clear();
+    setState(() => _selectedMood = null);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Mood saved successfully! Check the Home tab.')),
+    );
   }
 
   void _addNewEmotion() {
@@ -259,8 +299,11 @@ class _AddMoodPageState extends State<AddMoodPage> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.deepPurple,
                             ),
-                            onPressed: () {},
-                            child: const Text('Save'),
+                            // CONNECTED THE SAVE BUTTON HERE
+                            onPressed: _isSaving ? null : _saveNote,
+                            child: _isSaving 
+                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) 
+                              : const Text('Save'),
                           ),
                         ],
                       )
@@ -387,7 +430,11 @@ class _AddMoodPageState extends State<AddMoodPage> {
           itemCount: colors.length,
           itemBuilder: (context, index) {
             final color = colors[index];
-            final isSelected = selectedColor.value == color.value;
+            
+            // --- FIX START: REPLACED .value with .toARGB32() ---
+            final isSelected = selectedColor.toARGB32() == color.toARGB32();
+            // --- FIX END ---
+            
             return GestureDetector(
               onTap: () => onSelect(color),
               child: Container(

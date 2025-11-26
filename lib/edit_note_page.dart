@@ -44,7 +44,8 @@ class _EditNotePageState extends State<EditNotePage> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.initialTitle);
-    _descriptionController = TextEditingController(text: widget.initialDescription);
+    _descriptionController =
+        TextEditingController(text: widget.initialDescription);
 
     _selectedMood = _moods.firstWhere(
       (mood) => mood.emoji == widget.initialMood,
@@ -95,14 +96,17 @@ class _EditNotePageState extends State<EditNotePage> {
                       style: const TextStyle(color: Colors.white, fontSize: 14),
                       decoration: InputDecoration(
                         labelText: 'Emotion Name',
-                        labelStyle: const TextStyle(color: Colors.white70, fontSize: 13),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        labelStyle: const TextStyle(
+                            color: Colors.white70, fontSize: 13),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
                         enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Colors.white30),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: Colors.deepPurple),
+                          borderSide:
+                              const BorderSide(color: Colors.deepPurple),
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -110,21 +114,28 @@ class _EditNotePageState extends State<EditNotePage> {
                     const SizedBox(height: 14),
                     const Text(
                       'Pick an Emoji',
-                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 8),
                     SizedBox(
                       height: 180, // fixed height to enable scrolling
                       child: SingleChildScrollView(
                         child: _buildEmojiPicker(
-                            (emoji) => setDialogState(() => selectedEmoji = emoji),
+                            (emoji) =>
+                                setDialogState(() => selectedEmoji = emoji),
                             selectedEmoji),
                       ),
                     ),
                     const SizedBox(height: 14),
                     const Text(
                       'Pick a Color',
-                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 8),
                     _buildColorPicker(
@@ -142,21 +153,25 @@ class _EditNotePageState extends State<EditNotePage> {
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                     ),
-                    child: const Text('Cancel', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                    child: const Text('Cancel',
+                        style: TextStyle(color: Colors.white70, fontSize: 14)),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     onPressed: () {
-                      if (nameController.text.isNotEmpty && selectedEmoji != null) {
+                      if (nameController.text.isNotEmpty &&
+                          selectedEmoji != null) {
                         setState(() {
                           _moods.add(Mood(
                             emoji: selectedEmoji!,
@@ -202,11 +217,14 @@ class _EditNotePageState extends State<EditNotePage> {
                       alignment: Alignment.centerLeft,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
+                          // --- FIX START: Use .withValues instead of .withOpacity ---
+                          color: Colors.black.withValues(alpha: 0.5),
+                          // --- FIX END ---
                           shape: BoxShape.circle,
                         ),
                         child: IconButton(
-                          icon: const Icon(Icons.arrow_back, color: Colors.white),
+                          icon:
+                              const Icon(Icons.arrow_back, color: Colors.white),
                           onPressed: () => Navigator.of(context).pop(),
                         ),
                       ),
@@ -265,7 +283,8 @@ class _EditNotePageState extends State<EditNotePage> {
                         children: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(),
-                            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+                            child: const Text('Cancel',
+                                style: TextStyle(color: Colors.white70)),
                           ),
                           const SizedBox(width: 12),
                           ElevatedButton(
@@ -273,7 +292,8 @@ class _EditNotePageState extends State<EditNotePage> {
                               debugPrint("Note Updated!");
                               debugPrint("New Title: ${_titleController.text}");
                               debugPrint("New Mood: ${_selectedMood?.emoji}");
-                              debugPrint("New Description: ${_descriptionController.text}");
+                              debugPrint(
+                                  "New Description: ${_descriptionController.text}");
                               Navigator.of(context).pop();
                             },
                             style: ElevatedButton.styleFrom(
@@ -340,12 +360,12 @@ class _EditNotePageState extends State<EditNotePage> {
 
   Widget _buildEmojiPicker(Function(String) onSelect, String? selectedEmoji) {
     final emojis = [
-      '😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','😘','😗',
-      '😙','😚','🙂','🤗','🤩','🤔','😐','😑','😶','🙄','😏','😣','😥','😮','🤐',
-      '😯','😪','😫','🥱','😴','😌','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔',
-      '🤤','🤠','😓','😔','😕','🙁','☹️','😖','😞','😟','😤','😢','😭','😦','😧',
-      '😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬',
-      '😷','🤒','🤕','🤢','🤮','🤧','🥳','🥺','🤠','😇','🤓'
+      '😀', '😁', '😂', '🤣', '😃', '😄', '😅', '😆', '😉', '😊', '😋', '😎', '😍', '😘', '😗',
+      '😙', '😚', '🙂', '🤗', '🤩', '🤔', '😐', '😑', '😶', '🙄', '😏', '😣', '😥', '😮', '🤐',
+      '😯', '😪', '😫', '🥱', '😴', '😌', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔',
+      '🤤', '🤠', '😓', '😔', '😕', '🙁', '☹️', '😖', '😞', '😟', '😤', '😢', '😭', '😦', '😧',
+      '😨', '😩', '🤯', '😬', '😰', '😱', '🥵', '🥶', '😳', '🤪', '😵', '🥴', '😠', '😡', '🤬',
+      '😷', '🤒', '🤕', '🤢', '🤮', '🤧', '🥳', '🥺', '🤠', '😇', '🤓'
     ];
 
     return GridView.builder(
@@ -406,7 +426,9 @@ class _EditNotePageState extends State<EditNotePage> {
           itemCount: colors.length,
           itemBuilder: (context, index) {
             final color = colors[index];
-            final isSelected = selectedColor.value == color.value;
+            // --- FIX START: Use .toARGB32() instead of .value ---
+            final isSelected = selectedColor.toARGB32() == color.toARGB32();
+            // --- FIX END ---
             return GestureDetector(
               onTap: () => onSelect(color),
               child: Container(

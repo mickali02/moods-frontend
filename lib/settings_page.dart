@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logging/logging.dart';
 
-final Logger _logger = Logger('SettingsPage');
+// Import your page files (ensure these match your renamed files)
+import 'change_user_info_page.dart';
+import 'update_password_page.dart';
+import 'delete_all_entries_page.dart';
+import 'delete_account_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -18,15 +21,13 @@ class SettingsPage extends StatelessWidget {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        // We remove the AppBar to have more control over the title's position.
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // --- Custom Header ---
+                const SizedBox(height: 30),
                 Center(
                   child: Text(
                     'Settings',
@@ -37,9 +38,9 @@ class SettingsPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 50), // This pushes the content below down
+                const SizedBox(height: 50),
 
-                // --- Section 1: Account ---
+                // --- Account Section ---
                 _buildSectionHeader('Account'),
                 _modernCard(
                   child: Column(
@@ -48,7 +49,12 @@ class SettingsPage extends StatelessWidget {
                         icon: Icons.person_outline,
                         title: 'Change Username & Email',
                         onTap: () {
-                          _logger.info('Navigate to change user info page');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ChangeUserInfoPage(),
+                            ),
+                          );
                         },
                       ),
                     ],
@@ -56,7 +62,7 @@ class SettingsPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
 
-                // --- Section 2: Security ---
+                // --- Security Section ---
                 _buildSectionHeader('Security'),
                 _modernCard(
                   child: Column(
@@ -65,7 +71,12 @@ class SettingsPage extends StatelessWidget {
                         icon: Icons.lock_outline,
                         title: 'Update Password',
                         onTap: () {
-                          _logger.info('Navigate to update password page');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const UpdatePasswordPage(),
+                            ),
+                          );
                         },
                       ),
                     ],
@@ -73,12 +84,13 @@ class SettingsPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
 
-                // --- Section 3: Danger Zone ---
+                // --- Danger Zone Section ---
                 _buildSectionHeader('Danger Zone'),
                 _modernCard(
                   gradientColors: [
-                    Colors.red.withOpacity(0.2),
-                    Colors.red.withOpacity(0.05)
+                    // FIXED: Replaced .withOpacity() with .withValues(alpha: )
+                    Colors.red.withValues(alpha: 0.2),
+                    Colors.red.withValues(alpha: 0.05),
                   ],
                   child: Column(
                     children: [
@@ -87,7 +99,12 @@ class SettingsPage extends StatelessWidget {
                         title: 'Delete All Entries',
                         textColor: Colors.red.shade300,
                         onTap: () {
-                          _logger.warning('Delete All Entries tapped');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const DeleteAllEntriesPage(),
+                            ),
+                          );
                         },
                       ),
                       const Divider(height: 1, color: Colors.white24),
@@ -96,7 +113,12 @@ class SettingsPage extends StatelessWidget {
                         title: 'Delete Account',
                         textColor: Colors.red.shade300,
                         onTap: () {
-                          _logger.warning('Delete Account tapped');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const DeleteAccountPage(),
+                            ),
+                          );
                         },
                       ),
                     ],
@@ -149,8 +171,9 @@ class SettingsPage extends StatelessWidget {
         gradient: LinearGradient(
           colors: gradientColors ??
               [
-                Colors.deepPurple.withOpacity(0.6),
-                Colors.black.withOpacity(0.4)
+                // FIXED: Replaced .withOpacity() with .withValues(alpha: )
+                Colors.deepPurple.withValues(alpha: 0.6),
+                Colors.black.withValues(alpha: 0.4)
               ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -158,7 +181,8 @@ class SettingsPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            // FIXED: Replaced .withOpacity() with .withValues(alpha: )
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
