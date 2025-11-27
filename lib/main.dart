@@ -3,6 +3,8 @@ import 'add_mood_page.dart';
 import 'stats_page.dart';
 import 'settings_page.dart';
 import 'edit_note_page.dart';
+import 'models/quote.dart';
+import 'activation_screen.dart';
 
 // --- NEW IMPORT FOR LOGIN ---
 import 'login_page.dart';
@@ -41,6 +43,25 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       // --- UPDATE: App now starts at LoginPage ---
       home: const LoginPage(),
+      // --- ADD THIS onGenerateRoute LOGIC ---
+      onGenerateRoute: (settings) {
+        // Handle the /activate route
+        if (settings.name != null && settings.name!.startsWith('/activate')) {
+          // Extract the token from the URL query parameters
+          final uri = Uri.parse(settings.name!);
+          final token = uri.queryParameters['token'];
+
+          // If a token is found, go to the ActivationScreen
+          if (token != null) {
+            return MaterialPageRoute(
+              builder: (context) => ActivationScreen(token: token),
+            );
+          }
+        }
+        // For any other route, you can define them here or return null
+        // to use the 'home' property as a default.
+        return null;
+      },
     );
   }
 }
@@ -104,6 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // --- SERVICE & DATA VARIABLES ---
   final ApiService _apiService = ApiService();
   late Future<List<Note>> _notesFuture;
+  late Future<Quote> _quoteFuture;
 
   // Example mood list for UI Mapping (Colors/Names)
   final List<Mood> _availableMoods = [
@@ -118,6 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _loadNotes();
+    _quoteFuture = _apiService.getDailyQuote();
   }
 
   // Fetch data from the Service
@@ -450,6 +473,69 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
               ),
+
+              Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+  child: FutureBuilder<Quote>(
+    future: _quoteFuture,
+    builder: (context, snapshot) {
+      // If the API call is still loading, show a small placeholder.
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const SizedBox(
+          height: 50, // Give it some space
+          child: Center(child: Text("Fetching a quote...", style: TextStyle(color: Colors.white54))),
+        );
+      }
+      
+      // If there was an error, display it.
+      if (snapshot.hasError) {
+        return const SizedBox(
+          height: 50,
+          child: Center(child: Text("Could not load quote.", style: TextStyle(color: Colors.redAccent))),
+        );
+      }
+      
+      // If we have data, display the quote.
+      if (snapshot.hasData) {
+        final quote = snapshot.data!;
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.black.withAlpha(80),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              Text(
+                '"${quote.text}"',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.white70,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "— ${quote.author}",
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white54,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+      
+      // Default case (shouldn't really happen)
+      return const SizedBox(height: 50);
+    },
+  ),
+),
+
               const SizedBox(height: 8),
 
               // --- FUTURE BUILDER REPLACES HARDCODED LIST ---
