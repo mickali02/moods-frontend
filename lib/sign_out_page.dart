@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-// --- IMPORTS ---
-// Make sure these paths match your actual project structure
-import 'login_page.dart'; 
-import 'services/api_service.dart'; // ✅ This looks inside the services folder
+import '../services/api_service.dart'; // Import API Service
+import 'login_page.dart'; // Import Login Page
 
 class SignOutPage extends StatefulWidget {
   const SignOutPage({super.key});
@@ -19,29 +16,28 @@ class _SignOutPageState extends State<SignOutPage> {
   void _handleSignOut() async {
     setState(() => _isLoading = true);
 
-    try {
-      // 1. Call the logout method from your updated ApiService
-      await ApiService().logout();
+    // 1. Clear tokens using the Service
+    await ApiService().logout();
 
-      if (!mounted) return;
+    // Small delay for UI effect (optional)
+    await Future.delayed(const Duration(seconds: 1));
 
-      // 2. Clear navigation stack and go to Login Page
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-        (route) => false, // This removes all previous routes
-      );
-    } catch (e) {
-      // Safety net: If API fails, stop loading and show error
-      if (mounted) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Logout failed: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
+    if (!mounted) return;
+
+    // 2. Clear navigation stack and go to Login Page
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const LoginPage()), 
+      (route) => false, // This removes all previous routes
+    );
+
+    setState(() => _isLoading = false);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Logged out successfully'),
+        backgroundColor: Colors.amber,
+      ),
+    );
   }
 
   @override
@@ -115,8 +111,7 @@ class _SignOutPageState extends State<SignOutPage> {
                         const CircleAvatar(
                           radius: 40,
                           backgroundColor: Colors.amber,
-                          child: Icon(Icons.logout_rounded,
-                              size: 40, color: Colors.black),
+                          child: Icon(Icons.logout_rounded, size: 40, color: Colors.black),
                         ),
                         const SizedBox(height: 24),
                         Text(
@@ -138,7 +133,7 @@ class _SignOutPageState extends State<SignOutPage> {
                           ),
                         ),
                         const SizedBox(height: 32),
-
+                        
                         // --- Sign Out Button ---
                         SizedBox(
                           width: double.infinity,
@@ -147,7 +142,7 @@ class _SignOutPageState extends State<SignOutPage> {
                             onPressed: _isLoading ? null : _handleSignOut,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.amber,
-                              foregroundColor: Colors.black, // Dark text on Amber
+                              foregroundColor: Colors.black, 
                               elevation: 8,
                               shadowColor: Colors.amber.withValues(alpha: 0.4),
                               shape: RoundedRectangleBorder(
@@ -158,8 +153,7 @@ class _SignOutPageState extends State<SignOutPage> {
                                 ? const SizedBox(
                                     width: 24,
                                     height: 24,
-                                    child: CircularProgressIndicator(
-                                        color: Colors.black, strokeWidth: 2),
+                                    child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2),
                                   )
                                 : Text(
                                     'SIGN OUT',
