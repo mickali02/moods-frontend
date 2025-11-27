@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/note_model.dart';
+import '../models/quote.dart';
 
 class User {
   final String token;
@@ -27,7 +28,7 @@ class ApiService {
 
   // --- 1. BASE URL ---
   // Use 10.0.2.2 for Android Emulator, or your IP for physical device
-  static const String baseUrl = 'http://10.0.2.2:4000/v1'; 
+  static const String baseUrl = 'http://localhost:4000/api/v1';
 
   User? _currentUser;
 
@@ -170,19 +171,32 @@ class ApiService {
   }
 
   // --- QUOTES ---
-  Future<String> getDailyQuote() async {
-    try {
-      final url = Uri.parse('https://api.quotable.io/random?maxLength=50');
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return '"${data['content']}"';
-      }
-    } catch (e) {
-      // Silently fail
+  Future<Quote> getDailyQuote() async {
+  // We use the baseUrl to call our own Go backend endpoint.
+  final url = Uri.parse('$baseUrl/quote');
+  
+  try {
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      // Decode the full JSON response body.
+      final jsonResponse = jsonDecode(response.body);
+      
+      // Your backend wraps the quote in an "envelope", so we access the 'quote' key.
+      final quoteJson = jsonResponse['quote'];
+      
+      // We use the fromJson factory constructor from our Quote model to parse the data.
+      return Quote.fromJson(quoteJson);
+    } else {
+      // If the server returns an error, we throw an exception.
+      throw Exception('Failed to load quote from your backend');
     }
-    return '"Believe you can and you\'re halfway there."';
+  } catch (e) {
+    // If there's a network error or parsing error, re-throw the exception.
+    // We can also add a default quote here as a fallback if you like.
+    throw Exception('Could not connect to the quote service: ${e.toString()}');
   }
+}
 
   // --- STATS (This is now correctly inside the class) ---
   Future<Map<String, dynamic>> getStats() async {
@@ -196,6 +210,22 @@ class ApiService {
       // Data for Mon, Tue, Wed, Thu, Fri, Sat, Sun
       'weekly_entries': [3, 5, 2, 0, 4, 1, 2], 
     };
+  }
+
+  // --- NEW ACTIVATION METHOD ---
+  Future<void> activateUser(String token) async {
+    final url = Uri.parse('$baseUrl/users/activated');
+    
+    final response = await http.put( // The backend expects a PUT request
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'token': token}),
+    );
+
+    if (response.statusCode != 200) {
+      // If activation fails, throw an error to be caught by the FutureBuilder
+      throw Exception('Failed to activate user.');
+    }
   }
 
 } // <--- The class closes HERE
