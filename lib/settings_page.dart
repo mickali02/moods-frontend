@@ -6,6 +6,7 @@ import 'change_user_info_page.dart';
 import 'update_password_page.dart';
 import 'delete_all_entries_page.dart';
 import 'delete_account_page.dart';
+import 'sign_out_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -57,9 +58,27 @@ class SettingsPage extends StatelessWidget {
                           );
                         },
                       ),
+
+                      // --- ADDED DIVIDER + SIGN OUT TILE ---
+                      const Divider(height: 1, color: Colors.white24),
+
+                      _buildSettingsTile(
+                        icon: Icons.logout,
+                        title: 'Sign Out',
+                        textColor: Colors.amberAccent, // soft highlight
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SignOutPage(),
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 24),
 
                 // --- Security Section ---
@@ -88,7 +107,6 @@ class SettingsPage extends StatelessWidget {
                 _buildSectionHeader('Danger Zone'),
                 _modernCard(
                   gradientColors: [
-                    // FIXED: Replaced .withOpacity() with .withValues(alpha: )
                     Colors.red.withValues(alpha: 0.2),
                     Colors.red.withValues(alpha: 0.05),
                   ],
@@ -171,7 +189,6 @@ class SettingsPage extends StatelessWidget {
         gradient: LinearGradient(
           colors: gradientColors ??
               [
-                // FIXED: Replaced .withOpacity() with .withValues(alpha: )
                 Colors.deepPurple.withValues(alpha: 0.6),
                 Colors.black.withValues(alpha: 0.4)
               ],
@@ -181,7 +198,6 @@ class SettingsPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            // FIXED: Replaced .withOpacity() with .withValues(alpha: )
             color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),

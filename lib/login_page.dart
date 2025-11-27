@@ -34,37 +34,52 @@ class _LoginPageState extends State<LoginPage> {
       setState(() => _isLoading = true);
 
       try {
-        // --- CALL THE API SERVICE ---
         if (_isLogin) {
-          // Log in
+          // --- 1. LOGIN FLOW ---
           await ApiService().login(
             _emailController.text,
             _passwordController.text,
           );
+
+          if (!mounted) return;
+          setState(() => _isLoading = false);
+
+          // Success: Go to Home
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePageController()),
+          );
         } else {
-          // Sign up
+          // --- 2. SIGNUP FLOW ---
           await ApiService().signup(
             _usernameController.text,
             _emailController.text,
             _passwordController.text,
           );
+
+          if (!mounted) return;
+          setState(() => _isLoading = false);
+
+          // Success: DO NOT GO TO HOME.
+          // Show message to check email.
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Account created! Please check your email to activate.'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 5),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+
+          // Switch back to Login view automatically
+          setState(() => _isLogin = true);
         }
-
-        if (!mounted) return;
-
-        setState(() => _isLoading = false);
-
-        // --- SUCCESS: Navigate to Home ---
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePageController()),
-        );
       } catch (e) {
-        // --- ERROR: Show message ---
+        // --- ERROR HANDLER ---
         if (!mounted) return;
         setState(() => _isLoading = false);
         
-        // Clean up error message (remove "Exception:")
+        // Clean up error message
         final errorMessage = e.toString().replaceAll('Exception: ', '');
         
         ScaffoldMessenger.of(context).showSnackBar(
@@ -99,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                   // --- CUSTOM LOGO ---
                   Image.asset(
                     'assets/logo.png',
-                    height: 140, 
+                    height: 120, // Kept this at 120 so the gap looks good
                     fit: BoxFit.contain,
                   ),
                   
